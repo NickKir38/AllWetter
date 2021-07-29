@@ -9,7 +9,6 @@ def portfolio_moments(rets, lambda_factor):
     Input: Return array and lambda factor
     Output: annual return, volatility, Sharpe Ratio and Utility
     '''
-    
     annual_mean = (np.prod(1+rets, axis=0))**(252/len(rets))-1
     annual_vola = np.std(rets, axis=0)*np.sqrt(252)
     
