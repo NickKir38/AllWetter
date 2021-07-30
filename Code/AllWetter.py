@@ -149,7 +149,8 @@ def risk_parity_portfolio(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cns
     #Get the best assets and construct the best-asset DataFrame
     ast_pos = asset_classifier_utlty(df_mf_ret, g_ind, i_ind, lambda_factor, K, 0)
     ast_cols = np.delete(list(range(df_mf_ret.shape[1])), [g_ind, i_ind])
-    df_ret_rp = df_mf_ret.iloc[:,ast_cols[ast_pos]]
+    sel_asts = ast_cols[ast_pos]
+    df_ret_rp = df_mf_ret.iloc[:,sel_asts ]
     
     #Get the covariance matrix and optimal Risk-Parity weights
     cova_ast_rp = df_ret_rp.cov()
@@ -159,6 +160,34 @@ def risk_parity_portfolio(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cns
     #Get moments of the resulting Risk-Parity portfolio
     mu_rp, vola_rp, sr_rp,_ = portfolio_moments(rp_port, 3.73)
     
-    return rp_port, df_ret_rp, w_opt, mu_rp, vola_rp, sr_rp
-
+    return rp_port, df_ret_rp, w_opt, mu_rp, vola_rp, sr_rp, sel_asts
+    
+def backtester(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr, q):
+    '''
+    Input:
+        Macro Regime & Asset Returns DataFrame
+        Position of the Growth & Inflation Column in the DataFrame
+        Lambda Factor for the utility calculation
+        K - Number of best assets per regime
+        Starting asset weights
+        Target Risk contribution
+        Constraints: (0-none, 1-no leverage, 2-no shorting, 3-no leverage&short)
+        q (0<q<1): Percentage used for training, 1-q is used for out-of-sample 
+    Output:
+        in-sample returns
+        out-of-sample returns
+        return moments
+    '''
+    #Select the in-sample data for getting the weights
+    len_df = df_mf_ret.shape[0]
+    in_sample = round(q*len_df)
+    df_in_sample = df_mf_ret.iloc[0:in_sample,:]
+    df_out_sample = df_mf_ret.iloc[in_sample+1:len_df,:]
+    
+    #Fit the insample data to get the optimal weights
+    rp_ret_is, _, w_opt, _, _, _,sel_asts = risk_parity_portfolio(df_in_sample, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr)
+    df_out_sample = df_out_sample.iloc[:,sel_asts ]
+    rp_ret_os = df_out_sample.values@w_opt
+    
+    return rp_ret_is, rp_ret_os
 
