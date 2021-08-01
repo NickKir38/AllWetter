@@ -189,5 +189,11 @@ def backtester(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr, q):
     df_out_sample = df_out_sample.iloc[:,sel_asts ]
     rp_ret_os = df_out_sample.values@w_opt
     
-    return rp_ret_is, rp_ret_os
+    #Get the portfolio moments
+    mu_is, vola_is, sr_is, _ = portfolio_moments(rp_ret_is, lambda_factor)
+    mu_os, vola_os, sr_os, _ = portfolio_moments(rp_ret_os, lambda_factor)
+    is_moms = [mu_is, vola_is, sr_is]
+    os_moms = [mu_os, vola_os, sr_os]
+    
+    return rp_ret_is, rp_ret_os, is_moms, os_moms
 
