@@ -2,7 +2,7 @@
 
 This Python library includes functions to construct all-weather portfolios from a set of asset returns based on their performance during different macroeconomic regimes.
 
-<img src="https://render.githubusercontent.com/render/math?math=e^{i \pi} = -1">
+<img src="https://latex.codecogs.com/svg.latex?\Large&space;x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" title="\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" />
 
 ## Usage
 
