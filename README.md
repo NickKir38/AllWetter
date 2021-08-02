@@ -16,8 +16,8 @@ Then, one can rank the K best assets during each regime and create a risk-parity
 
 The goal of risk-parity portfolios is to have each included asset of the portfolio to contribute the same amount of risk in form of marginal volatility as the others to the portfolio. This can be defined as:
 
-$$\sigma_p = \sqrt{w\Omega w'}$$
-$$RC_j = w_j \times MRC = w_j \times \frac{\delta \sigma_p}{\delta w_j} = w_j\times\frac{\Omega\times w}{\sigma_p}$$
+![first equation](https://latex.codecogs.com/gif.latex?%5Csigma_p%20%3D%20%5Csqrt%7Bw%5COmega%20w%27%7D)
+![first equation](https://latex.codecogs.com/gif.latex?RC_j%20%3D%20w_j%20%5Ctimes%20MRC%20%3D%20w_j%20%5Ctimes%20%5Cfrac%7B%5Cdelta%20%5Csigma_p%7D%7B%5Cdelta%20w_j%7D%20%3D%20w_j%5Ctimes%5Cfrac%7B%5COmega%5Ctimes%20w%7D%7B%5Csigma_p%7D)
 
 In this denotation $\sigma_p$ is the risk (volatility) of the portfolio, $\Omega$ the covariance matrix of the assets and $w$ the vector of asset weights. This way we can obtain the Risk Contribution of each asset to the portfolio's risk and choose asset weights in a way to obtain an (equal) risk contribution.
 
