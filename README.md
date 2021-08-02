@@ -2,8 +2,6 @@
 
 This Python library includes functions to construct all-weather portfolios from a set of asset returns based on their performance during different macroeconomic regimes.
 
-<img src="https://latex.codecogs.com/svg.latex?\Large&space;x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" title="\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" />
-
 ## Usage
 
 The reposertory includes a CSV file that includes the time series of the forward-looking CLI index and Breakeven inflation. These two measure market expectations on Growth and Inflation. Further, the table includes for both a 0 and 1 to indicate whether the said expectation is rising or falling.
