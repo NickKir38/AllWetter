@@ -31,6 +31,7 @@ After defining a target level of risk contribtution for each asset we use that t
 ## Further functionalities
 
 Besides obtaining the risk-based portfolio of the K best assets in each regime based on a targeted risk contribution one can also run backtests, comparing the resulting portfolio in-sample over $q%$ of the data set. Also, a function to calculate the portfolio moments of a return series is included. Based on a returns series' resulting ultility there is also an assessment and plotting of each assets' macro exposure possible. The utility is defined as:
+
 ![fifth equation](https://latex.codecogs.com/gif.latex?U%3Dr_p%20-%20%5Cfrac%7B%5Clambda%7D%7B2%7D%20%5Csigma_p%5E2)
 
 Missing: Drawdown function.
