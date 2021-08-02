@@ -20,7 +20,7 @@ The goal of risk-parity portfolios is to have each included asset of the portfol
 
 ![third equation](https://latex.codecogs.com/gif.latex?RC_j%20%3D%20w_j%20%5Ctimes%20MRC%20%3D%20w_j%20%5Ctimes%20%5Cfrac%7B%5Cdelta%20%5Csigma_p%7D%7B%5Cdelta%20w_j%7D%20%3D%20w_j%5Ctimes%5Cfrac%7B%5COmega%5Ctimes%20w%7D%7B%5Csigma_p%7D)
 
-In this denotation $\sigma_p$ is the risk (volatility) of the portfolio, $\Omega$ the covariance matrix of the assets and $w$ the vector of asset weights. This way we can obtain the Risk Contribution of each asset to the portfolio's risk and choose asset weights in a way to obtain an (equal) risk contribution.
+In this approach, the risk (volatility) of the portfolio, the covariance matrix of the assets and the vector of asset weights are used. This way we can obtain the Risk Contribution of each asset to the portfolio's risk and choose asset weights in a way to obtain a wanted set of risk contributions.
 
 To do this we minimize:
 
@@ -30,7 +30,7 @@ After defining a target level of risk contribtution for each asset we use that t
 
 ## Further functionalities
 
-Besides obtaining the risk-based portfolio of the K best assets in each regime based on a targeted risk contribution one can also run backtests, comparing the resulting portfolio in-sample over $q%$ of the data set. Also, a function to calculate the portfolio moments of a return series is included. Based on a returns series' resulting ultility there is also an assessment and plotting of each assets' macro exposure possible. The utility is defined as:
+Besides obtaining the risk-based portfolio of the K best assets in each regime based on a targeted risk contribution one can also run backtests, comparing the resulting portfolio in-sample over q% of the data set. Also, a function to calculate the portfolio moments of a return series is included. Based on a returns series' resulting ultility there is also an assessment and plotting of each assets' macro exposure possible. The utility is defined as:
 
 ![fifth equation](https://latex.codecogs.com/gif.latex?U%3Dr_p%20-%20%5Cfrac%7B%5Clambda%7D%7B2%7D%20%5Csigma_p%5E2)
 
