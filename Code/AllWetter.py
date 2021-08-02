@@ -197,3 +197,16 @@ def backtester(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr, q):
     
     return rp_ret_is, rp_ret_os, is_moms, os_moms
 
+def drawdown(returns):
+    '''
+    Input:
+        Return series
+    Output:
+        Array of Drawdown sequence and a plot of it
+    '''
+    cum_ret = np.cumprod(returns+1)
+    drawdown_array = cum_ret / np.maximum.accumulate(cum_ret) - 1
+    plt.plot(drawdown_array)
+    plt.show()
+    
+    return drawdown_array
