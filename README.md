@@ -23,6 +23,7 @@ The goal of risk-parity portfolios is to have each included asset of the portfol
 In this denotation $\sigma_p$ is the risk (volatility) of the portfolio, $\Omega$ the covariance matrix of the assets and $w$ the vector of asset weights. This way we can obtain the Risk Contribution of each asset to the portfolio's risk and choose asset weights in a way to obtain an (equal) risk contribution.
 
 To do this we minimize:
+
 ![fourth equation](https://latex.codecogs.com/gif.latex?%5Cepsilon%28w%29%20%3D%20%5Csum_%7Bi%3D1%7D%5E%7Bn%7D%20%28RC_i-w_%7Bt%2Ci%7D%20%5Ctimes%20%5Csigma_w%29%5E2)
 
 After defining a target level of risk contribtution for each asset we use that to get the error against the chosen input weights to get the optimum weights that achieve the targeted risk contribution.
