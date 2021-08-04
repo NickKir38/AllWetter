@@ -126,7 +126,7 @@ def risk_parity_weights(w, covar_matr, w_t, constrtns):
     elif constrtns == 3: 
         cons = ({'type': 'eq', 'fun': lambda w: np.sum(w)-1}, {'type': 'ineq', 'fun': lambda w: w})
     #Do the optimization to get the optimal weights by minimizing error
-    res = minimize(risk_parity_error, w, args=[covar_matr,w_t], method='SLSQP',constraints=cons, options={'disp': True})
+    res = minimize(risk_parity_error, w, args=(covar_matr,w_t), method='SLSQP',constraints=cons, options={'disp': True})
     w_opt = np.asarray(res.x)
     
     return w_opt
