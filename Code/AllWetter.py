@@ -162,7 +162,7 @@ def risk_parity_portfolio(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cns
     
     return rp_port, df_ret_rp, w_opt, mu_rp, vola_rp, sr_rp, sel_asts
     
-def backtester(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr, q):
+def backtester(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr, q, L):
     '''
     Input:
         Macro Regime & Asset Returns DataFrame
@@ -173,6 +173,7 @@ def backtester(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr, q):
         Target Risk contribution
         Constraints: (0-none, 1-no leverage, 2-no shorting, 3-no leverage&short)
         q (0<q<1): Percentage used for training, 1-q is used for out-of-sample 
+        L: Invested amount at the beginning
     Output:
         in-sample returns
         out-of-sample returns
@@ -186,8 +187,12 @@ def backtester(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr, q):
     
     #Fit the insample data to get the optimal weights
     rp_ret_is, _, w_opt, _, _, _,sel_asts = risk_parity_portfolio(df_in_sample, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr)
-    df_out_sample = df_out_sample.iloc[:,sel_asts ]
+    df_out_sample = df_out_sample.iloc[:,sel_asts]
     rp_ret_os = df_out_sample.values@w_opt
+    
+    #Fit the currency at the beginning (no rebalancing)
+    inv_amnts = w_opt * L
+    rp_ret_blncs = np.cumprod(df_out_sample+1)@inv_amnts.T
     
     #Get the portfolio moments
     mu_is, vola_is, sr_is, _ = portfolio_moments(rp_ret_is, lambda_factor)
@@ -195,7 +200,7 @@ def backtester(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr, q):
     is_moms = [mu_is, vola_is, sr_is]
     os_moms = [mu_os, vola_os, sr_os]
     
-    return rp_ret_is, rp_ret_os, is_moms, os_moms
+    return rp_ret_is, rp_ret_os, is_moms, os_moms, rp_ret_blncs
 
 def drawdown(returns):
     '''
