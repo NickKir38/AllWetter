@@ -4,6 +4,33 @@ import matplotlib.pyplot as plt
 import scipy.stats as scs
 from scipy.optimize import minimize
 
+def covariance_shrinkage(df_returns, delta):
+    '''
+    Input:
+        Return Dataframe
+        Shrinkage factor
+    Output:
+        Shrunken covariance matrix
+    '''
+    #Get the sample covariance and define shrinkage matrix
+    corr_s = df_returns.corr().values
+    cov_s = df_returns.cov().values
+    cov_f = np.full_like(cov_s, 0)
+    
+    #Fill the shrinkage matrix
+    r_bar = 2/((len(cov_s)-1)*len(cov_s))*(np.triu(corr_s).sum() - np.trace(corr_s))
+    for i in range(len(cov_f)):
+        for j in range(len(cov_f)):
+            if i == j:
+                cov_f[i,j] = cov_s[i,j]
+            else:
+                cov_f[i,j] = r_bar * np.sqrt(cov_s[i,i] * cov_s[j,j]) 
+    
+    #Calculate the shrunken covariance matrix
+    cov_shrink = delta * cov_s + (1-delta) * cov_f
+    
+    return cov_shrink
+
 def portfolio_moments(rets, lambda_factor):
     '''
     Input: Return array and lambda factor
