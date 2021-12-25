@@ -76,7 +76,9 @@ def exposure_mapping(df_mf_ret, g_ind, i_ind, lambda_factor):
     #Caulculate the Growth and Inflation exposures
     grow_exp = np.mean(utlts[:,[0,1]], axis = 1) - np.mean(utlts[:,[2,3]], axis = 1)
     infl_exp = np.mean(utlts[:,[0,2]], axis = 1) - np.mean(utlts[:,[1,3]], axis = 1) 
-    df_exp = pd.DataFrame([grow_exp, infl_exp], columns = df_mf_ret.columns[ast_cols])
+    df_exp = pd.DataFrame([grow_exp, infl_exp], 
+                          columns = df_mf_ret.columns[ast_cols],
+                          index = ['Growth', 'Inflation'])
     
     #Calculate the t-stats of difference in mean between the macro regimes
     gh_rets = df_mf_ret.loc[df_mf_ret.iloc[:,g_ind]==1].iloc[:,ast_cols]
@@ -89,25 +91,25 @@ def exposure_mapping(df_mf_ret, g_ind, i_ind, lambda_factor):
     
     return mus, stds, srs, utlts, df_exp, t_stats_g, t_stats_i
 
-def asset_classifier_utlty(df_mf_ret, g_ind, i_ind, lambda_factor, K, opt):
+def asset_classifier_utlty(df_mf_ret, g_ind, i_ind, lambda_factor, K, opt=None):
     '''
     Input:
         Macro Regime & Asset Return DataFrame
         Position of the Growth & Inflation Column in the DataFrame
         Lambda Factor for the utility calculation
         K - Number of best assets per regime
-        opt - if 1 gives asset names, 0 gives positions in DataFrame
+        opt - if None gives asset names, else gives positions in DataFrame
     Output:
         The best assets for each regime
     '''
     ast_cols = np.delete(list(range(df_mf_ret.shape[1])), [g_ind, i_ind])
     ast_names = df_mf_ret.columns[ast_cols]    
-    _,_,_,utilities,_,_,_ = exposure_mapping(df_mf_ret, g_ind, i_ind, lambda_factor)
-    rank_pos = np.argsort(utilities, axis=0)
+    _,_,_,utlts,_,_,_ = exposure_mapping(df_mf_ret, g_ind, i_ind, lambda_factor)
+    rank_pos = np.argsort(utlts, axis=0)
     ast_pos = np.reshape(rank_pos[-K:], K*4)
     asts = ast_names[rank_pos[-K:]]
-    if opt == 1:
-        return asts
+    if opt == None:
+        return pd.DataFrame(asts)
     else:
         return ast_pos
     
@@ -187,9 +189,11 @@ def risk_parity_portfolio(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cns
     rp_port = df_ret_rp.values@w_opt
     
     #Get moments of the resulting Risk-Parity portfolio
-    mu_rp, vola_rp, sr_rp,_ = portfolio_moments(rp_port, 3.73)
+    mu_rp, vola_rp, sr_rp,_ = portfolio_moments(rp_port, lambda_factor)
+    rp_moms = [mu_rp, vola_rp, sr_rp]
+    df_w = pd.DataFrame(w_opt, index = df_ret_rp.columns)
     
-    return rp_port, df_ret_rp, w_opt, mu_rp, vola_rp, sr_rp, sel_asts
+    return rp_port, df_ret_rp, df_w, rp_moms, sel_asts
     
 def backtester(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr, q, L):
     '''
@@ -206,30 +210,41 @@ def backtester(df_mf_ret, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr, q, L):
     Output:
         in-sample returns
         out-of-sample returns
-        return moments
+        return moments (IS & OOS)
+        Amount made OOS
     '''
     #Select the in-sample data for getting the weights
-    len_df = df_mf_ret.shape[0]
-    in_sample = round(q*len_df)
-    df_in_sample = df_mf_ret.iloc[0:in_sample,:]
-    df_out_sample = df_mf_ret.iloc[in_sample+1:len_df,:]
+    if q == None: 
+        odd_day = df_mf_ret.index.day%2
+        df_in_sample = df_mf_ret.iloc[odd_day==1,:]
+        df_out_sample = df_mf_ret.iloc[odd_day==0,:]
+        
+    else:
+        len_df = df_mf_ret.shape[0]
+        in_sample = round(q*len_df)
+        df_in_sample = df_mf_ret.iloc[0:in_sample,:]
+        df_out_sample = df_mf_ret.iloc[in_sample+1:len_df,:]
     
     #Fit the insample data to get the optimal weights
-    rp_ret_is, _, w_opt, _, _, _,sel_asts = risk_parity_portfolio(df_in_sample, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr)
+    rp_ret_is, _, w_opt, _,sel_asts = risk_parity_portfolio(df_in_sample, g_ind, i_ind, lambda_factor, K, w, w_t, cnstr)
     df_out_sample = df_out_sample.iloc[:,sel_asts]
     rp_ret_os = df_out_sample.values@w_opt
     
     #Fit the currency at the beginning (no rebalancing)
     inv_amnts = w_opt * L
-    rp_ret_blncs = np.cumprod(df_out_sample+1)@inv_amnts.T
+    rp_ret_blncs = np.cumprod(df_out_sample+1)@inv_amnts
+    
+    #Create dataframes
+    df_rp_ret_is = pd.DataFrame(rp_ret_is, index = df_in_sample.index)
+    df_rp_ret_os = pd.DataFrame(rp_ret_os.values, index = df_out_sample.index)
     
     #Get the portfolio moments
     mu_is, vola_is, sr_is, _ = portfolio_moments(rp_ret_is, lambda_factor)
-    mu_os, vola_os, sr_os, _ = portfolio_moments(rp_ret_os, lambda_factor)
-    is_moms = [mu_is, vola_is, sr_is]
-    os_moms = [mu_os, vola_os, sr_os]
+    mu_os, vola_os, sr_os, _ = portfolio_moments(rp_ret_os.values, lambda_factor)
+    is_moms = np.asarray([mu_is, vola_is, sr_is])
+    os_moms = np.asarray([mu_os, vola_os, sr_os])
     
-    return rp_ret_is, rp_ret_os, is_moms, os_moms, rp_ret_blncs
+    return df_rp_ret_is, df_rp_ret_os, is_moms, os_moms, rp_ret_blncs
 
 def drawdown(returns):
     '''
